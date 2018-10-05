@@ -12,7 +12,7 @@ class AppTests extends FunSuite {
 
     applyDiscount(cartId, storage)
 
-    val expected = Cart(CartId("some-gold-cart"), CustomerId("gold-customer"), Amount(50))
+    val expected = Cart(CartId("some-gold-cart"), GoldCustomer, Amount(50))
     assert(storage.saved.get == expected)
   }
 

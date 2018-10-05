@@ -1,19 +1,37 @@
 package org.fprefactoring
 
 object Models {
-  case class Amount(value: BigDecimal)
-
-  case class CustomerId(value: String)
-  case class CartId(value: String)
-  case class Cart(id: CartId, customerId: CustomerId, amount: Amount)
-  object Cart {
-    val missingCart = new Cart(CartId(""), CustomerId(""), Amount(0))
+  case class Amount(value: BigDecimal) extends AnyVal {
+    def -(amount: Amount): Amount = Amount(value - amount.value)
+    def half = Amount(value / 2)
   }
 
-  case class DiscountRule(f: Cart => Amount) extends (Cart => Amount) {
+  sealed trait CustomerId {
+    def value: String
+  }
+
+  case object GoldCustomer extends CustomerId {
+    override val value = "gold-customer"
+  }
+
+  case object NormalCustomer extends CustomerId {
+    override val value = "normal-customer"
+  }
+
+  case object NoCustomer extends CustomerId {
+    override val value = ""
+  }
+
+  case class CartId(value: String) extends AnyVal
+
+
+  case class Cart(id: CartId, customerId: CustomerId, amount: Amount)
+
+  class DiscountRule(f: Cart => Amount) extends (Cart => Amount) {
     def apply(c: Cart): Amount = f(c)
   }
-  object DiscountRule {
-    val noDiscount = DiscountRule(_ => throw new RuntimeException("no discount"))
-  }
+
+  case object HalfDiscount extends DiscountRule(cart => cart.amount.half)
+
+  case object NoDiscount extends DiscountRule(_ => Amount(0))
 }
